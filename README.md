@@ -1,12 +1,20 @@
 # Noty
 
-A notebook in your browser that you and your AI assistants write in together.
+[![Cloudflare Workers](https://img.shields.io/badge/Deployed%20on-Cloudflare%20Workers-F38020?logo=cloudflare&logoColor=white)](https://noty.pavanclicks145.workers.dev)
+[![MCP](https://img.shields.io/badge/Protocol-Model%20Context%20Protocol-8A2BE2)](https://modelcontextprotocol.io/)
+[![Google Drive](https://img.shields.io/badge/Sync-Google%20Drive-4285F4?logo=googledrive&logoColor=white)](https://drive.google.com)
+[![React](https://img.shields.io/badge/Frontend-React%2019-61DAFB?logo=react&logoColor=black)](https://react.dev)
+[![TypeScript](https://img.shields.io/badge/Language-TypeScript-3178C6?logo=typescript&logoColor=white)](https://www.typescriptlang.org)
 
-- **You** open it and type, paste images, add diagrams (type `/` for the menu).
-- **Assistants** (Claude, Gemini CLI, ChatGPT, Cursor… anything that supports remote MCP) add to it when you say *"add this question to my DSA notes"*. Questions become Q&A cards, important points become highlighted boxes, flows become drawn diagrams. They appear live in any open tab, marked in the margin with which assistant wrote them.
-- **Everything is saved in your Google Drive**, in a folder called `Noty`: a `.md` file you can read anywhere, and a `.noty.json` file the app reads from. Images go in `Noty/images`.
+> **Live Instance:** [https://noty.pavanclicks145.workers.dev](https://noty.pavanclicks145.workers.dev)  
+> **MCP Endpoint:** `https://noty.pavanclicks145.workers.dev/mcp`
 
-It runs free on Cloudflare Workers. Google Drive's free 15 GB covers storage.
+A modern collaborative notebook in your browser that you and your AI assistants write in together in real-time.
+
+- **You** open it and type, paste images, draw with Apple Pencil/stylus, add diagrams (type `/` for the block menu).
+- **Assistants** (Claude, Gemini CLI, ChatGPT, Cursor… anything supporting remote MCP) add to it live when you say *"add this question to my DSA notes"*. Questions become Q&A cards, important points become highlighted boxes, flows become drawn diagrams. They appear live in any open tab, marked in the margin with which assistant wrote them.
+- **Everything is saved in your Google Drive**, in a folder called `Noty`: a standard `.md` file you can read anywhere, and a `.noty.json` file for the app. Images go in `Noty/images`.
+- **Zero server costs:** Runs free on Cloudflare Workers (Assets + Durable Objects + KV) backed by Google Drive's free 15 GB storage.
 
 ## How it fits together
 
