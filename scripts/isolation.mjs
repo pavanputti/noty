@@ -1,0 +1,34 @@
+// Two different signed-in people on the local copy: "owner" (admin password) and "dev-user" (a second account).
+import { readFileSync } from "node:fs";
+const B = "http://localhost:8787";
+const pw = readFileSync(new URL("../.dev.vars", import.meta.url), "utf8").match(/^ADMIN_PASSWORD=(.*)$/m)[1].trim();
+const cookieOf = (r) => (r.headers.getSetCookie?.() ?? []).find((c) => c.startsWith("noty_session="))?.split(";")[0];
+const owner = cookieOf(await fetch(`${B}/login/password`, { method: "POST", redirect: "manual", headers: { "Content-Type": "application/x-www-form-urlencoded", Origin: B, "CF-Connecting-IP": "198.51.100.1" }, body: new URLSearchParams({ password: pw, next: "/" }) }));
+const other = cookieOf(await fetch(`${B}/login/dev?next=/`, { redirect: "manual" }));
+const api = (c, path, init = {}) => fetch(B + "/api" + path, { ...init, headers: { Cookie: c, "Content-Type": "application/json", Origin: B, ...(init.headers ?? {}) } });
+let fails = 0; const check = (ok, m) => { console.log((ok ? "PASS " : "FAIL ") + m); if (!ok) fails++; };
+const mine = await (await api(owner, "/notebooks", { method: "POST", body: JSON.stringify({ name: "Owner private diary" }) })).json();
+await api(owner, `/notebooks/${mine.id}`, { method: "PUT", body: JSON.stringify({ upserts: [{ id: "secret1", type: "paragraph", props: {}, content: [{ type: "text", text: "owner-secret-xyz", styles: {} }], children: [] }], deletes: [], order: ["secret1"], baseVersion: 1, clientId: "t" }) });
+await api(owner, `/notebooks/${mine.id}/ink`, { method: "POST", body: JSON.stringify({ add: [{ anchor: "secret1", stroke: { id: "ink1", c: "ink", s: 5, d: "1,1,50" } }], clientId: "t" }) });
+const theirs = await (await api(other, "/notebooks", { method: "POST", body: JSON.stringify({ name: "Second person notes" }) })).json();
+const otherList = await (await api(other, "/notebooks")).json();
+const ownerList = await (await api(owner, "/notebooks")).json();
+check(!otherList.some((n) => n.id === mine.id || n.name.includes("Owner")), "second person's notebook list doesn't show the owner's notebook");
+check(!ownerList.some((n) => n.id === theirs.id), "owner's list doesn't show the second person's notebook");
+check((await api(other, `/notebooks/${mine.id}`)).status === 404, "second person can't open the owner's notebook even with its exact link/id");
+check((await api(other, `/notebooks/${mine.id}`, { method: "PUT", body: JSON.stringify({ upserts: [], deletes: ["secret1"], order: [], baseVersion: 99, clientId: "x" }) })).status === 404, "second person can't edit or delete the owner's notebook");
+const ink = await (await api(other, `/notebooks/${mine.id}/ink?anchors=secret1`)).json();
+check(!ink.secret1?.length, "second person can't read the owner's handwriting");
+check((await api(other, `/notebooks/${mine.id}/ink`, { method: "POST", body: JSON.stringify({ add: [], remove: [{ anchor: "secret1", id: "ink1" }], clientId: "x" }) })).status === 404, "second person can't erase the owner's handwriting");
+const found = await (await api(other, `/search?q=owner-secret-xyz`)).json();
+const byName = await (await api(other, `/search?q=${encodeURIComponent("Owner private diary")}`)).json();
+check(found.hits.length === 0 && byName.notebooks.length === 0, "search doesn't reveal the owner's text or notebook names to the second person");
+const still = await (await api(owner, `/notebooks/${mine.id}`)).json();
+check(JSON.stringify(still.blocks).includes("owner-secret-xyz"), "owner's notebook is untouched");
+check((await fetch(`${B}/api/notebooks/${mine.id}`)).status === 401, "signed-out visitors get nothing");
+// live connection: second person can't subscribe to the owner's notebook updates
+const ws = new WebSocket(`ws://localhost:8787/api/notebooks/${mine.id}/live`, { headers: { Cookie: other } });
+const got = await new Promise((res) => { ws.onmessage = (e) => res(e.data); setTimeout(() => res(null), 1500); ws.onopen = () => api(owner, `/notebooks/${mine.id}/ink`, { method: "POST", body: JSON.stringify({ add: [{ anchor: "secret1", stroke: { id: "ink2", c: "ink", s: 5, d: "2,2,50" } }], clientId: "t" }) }); });
+ws.close();
+check(got === null, "second person's live connection receives none of the owner's changes");
+console.log(fails ? `\n${fails} problem(s) found.` : "\nNo leaks: each account only sees its own notebooks.");

@@ -1,0 +1,58 @@
+{
+  "name": "noty",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "python3 -I scripts/e2e.py && node scripts/isolation.mjs",
+    "build": "vite build",
+    "dev": "vite build && wrangler dev",
+    "dev:web": "vite",
+    "deploy": "node scripts/deploy.mjs",
+    "typecheck": "tsc -p tsconfig.json && tsc -p web/tsconfig.json",
+    "types": "wrangler types",
+    "test:shapes": "node scripts/shapes.test.mts",
+    "test:browser": "node scripts/browser-features.mjs",
+    "test:bounds": "node scripts/browser-bounds.mjs",
+    "test:touch": "node scripts/browser-touch.mjs",
+    "check:live": "node scripts/live-tools-check.mjs",
+    "test:notion": "node scripts/browser-notion.mjs"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "module",
+  "private": "true",
+  "dependencies": {
+    "@cloudflare/workers-oauth-provider": "^1.2.4",
+    "@modelcontextprotocol/server": "^2.4.0",
+    "agents": "^0.34.0",
+    "hono": "^4.13.19",
+    "zod": "^4.6.7"
+  },
+  "devDependencies": {
+    "@blocknote/core": "^0.57.0",
+    "@blocknote/mantine": "^0.57.0",
+    "@blocknote/react": "^0.57.0",
+    "@cloudflare/workers-types": "^5.20261121.1",
+    "@mantine/core": "^9.8.2",
+    "@mantine/hooks": "^9.8.2",
+    "@types/leaflet": "^1.9.22",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "@vitejs/plugin-react": "^6.3.0",
+    "leaflet": "^1.9.4",
+    "mermaid": "^12.3.0",
+    "pdfjs-dist": "^6.5.438",
+    "perfect-freehand": "^1.2.3",
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1",
+    "typescript": "^7.0.2",
+    "vite": "^8.3.8",
+    "wrangler": "^4.166.0"
+  },
+  "allowScripts": {
+    "workerd@1.20261119.1": true,
+    "esbuild@0.28.2": true
+  }
+}

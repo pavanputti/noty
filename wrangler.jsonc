@@ -1,0 +1,32 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "noty",
+  "main": "src/worker/index.ts",
+  "compatibility_date": "2026-11-01",
+  "compatibility_flags": ["nodejs_compat", "global_fetch_strictly_public"],
+
+  // The web app (built by Vite into dist/). These paths always go to the Worker instead.
+  "assets": {
+    "directory": "dist",
+    "binding": "ASSETS",
+    "not_found_handling": "single-page-application",
+    "run_worker_first": ["/api/*", "/mcp", "/mcp/*", "/authorize", "/oauth/*", "/login", "/login/*", "/logout", "/auth/*", "/.well-known/*"]
+  },
+
+  // One Vault per Google account: notebooks, live updates, Drive sync.
+  "durable_objects": { "bindings": [{ "name": "VAULT", "class_name": "Vault" }] },
+  "migrations": [{ "tag": "v1", "new_sqlite_classes": ["Vault"] }],
+
+  // OAuth grants for connected assistants. Create it with:
+  //   npx wrangler kv namespace create OAUTH_KV
+  // and paste the id below.
+  "kv_namespaces": [{ "binding": "OAUTH_KV", "id": "43932da0354046b7b5142648f28146d1" }],
+
+  "vars": {
+    // Your Worker's public address. `npm run deploy` fills this in for you.
+    // (Locally, .dev.vars overrides it with http://localhost:8787.)
+    "PUBLIC_URL": "https://noty.pavanclicks145.workers.dev"
+  },
+
+  "observability": { "enabled": true }
+}

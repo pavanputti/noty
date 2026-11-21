@@ -1,0 +1,26 @@
+# Noty settings. Used for local testing, and `npm run deploy` uploads them to Cloudflare
+# as encrypted secrets (everything except PUBLIC_URL and DEV_LOGIN). Never commit this file.
+
+# ---- Sign in with a password (simplest). At least 10 characters. ----
+ADMIN_PASSWORD=choose-a-long-password
+
+# ---- Sign in with Google (optional; also needed for the Google Drive copy) ----
+GOOGLE_CLIENT_ID=your-client-id.apps.googleusercontent.com
+# "off" hides Google sign-in and the Drive copy (e.g. until the Google Cloud app is External + published).
+GOOGLE_SIGNIN=
+GOOGLE_CLIENT_SECRET=your-client-secret
+# Your Google address: signing in with it opens the same notebooks as the admin password.
+OWNER_EMAIL=
+# Other Google accounts allowed in (comma-separated). Each gets their own notebooks.
+ALLOWED_EMAILS=
+# "open" = anyone with a Google account can sign up and gets their own private notebooks.
+# Leave empty to allow only OWNER_EMAIL and ALLOWED_EMAILS.
+SIGNUPS=
+
+# Signs login cookies. Any long random string, e.g. from: openssl rand -base64 32
+COOKIE_SECRET=change-me-to-a-long-random-string-at-least-32-chars
+
+# ---- Local testing only (not uploaded) ----
+PUBLIC_URL=http://localhost:8787
+# Adds a "Local test sign-in" button on localhost:
+# DEV_LOGIN=1
