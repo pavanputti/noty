@@ -75,15 +75,162 @@ function signInPage(env: Env, next: string, error = "") {
       </form>`
         : ""
     }
-    ${pw && google ? `<p class="or">or</p>` : ""}
-    ${google ? `<p><a class="btn ${pw ? "quiet" : ""}" href="/login/google?next=${nextQ}">Continue with Google</a></p>` : ""}
+    ${pw && google ? `<div class="or"><span>or</span></div>` : ""}
+    ${google ? `<a class="btn-google" href="/login/google?next=${nextQ}"><svg width="20" height="20" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.18 1.48-4.97 2.31-8.16 2.31-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>Continue with Google</a>` : ""}
     ${google && openSignups(env) ? `<p class="fine">New here? Continuing with Google creates your own private notebooks. Nobody else can see them.</p>` : ""}
-    ${dev ? `<p><a class="btn quiet" href="/login/dev?next=${nextQ}">Local test sign-in</a></p>` : ""}
-    ${!pw && !google && !dev ? `<p>No sign-in method is set up yet. Set <code>ADMIN_PASSWORD</code> (10+ characters) or the Google keys, then deploy again.</p>` : ""}`;
-  return new Response(shell("Sign in", `<h1 class="mark">Noty</h1>${body}`), {
+    ${dev ? `<a class="btn-dev" href="/login/dev?next=${nextQ}">🧪 Local test sign-in</a>` : ""}
+    ${!pw && !google && !dev ? `<p class="setup-msg">⚙️ No sign-in method is set up yet.<br>Set <code>ADMIN_PASSWORD</code> (10+ chars) or the Google keys, then deploy again.</p>` : ""}`;
+  return new Response(loginShell(error, body), {
     status: error ? 401 : 200,
     headers: { "Content-Type": "text/html; charset=utf-8", "X-Frame-Options": "DENY", "Cache-Control": "no-store" },
   });
+}
+
+function loginShell(error: string, body: string): string {
+  return `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Sign in · Noty</title><link rel="icon" href="/favicon.svg">
+<script>try{var t=localStorage.getItem("noty:theme");if(t==="light"||t==="dark")document.documentElement.dataset.theme=t}catch(e){}</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Schibsted+Grotesk:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+:root{--paper:#F0F2F7;--sheet:#FFFFFF;--ink:#1D2433;--pencil:#626B7F;--rule:#D9DEE6;--pen:#2050C0;--pen2:#4F7FFF;--hi:#FFE15A;--cat:#1D2433}
+@media(prefers-color-scheme:dark){:root:not([data-theme=light]){--paper:#0D0F14;--sheet:#161920;--ink:#E5E8EE;--pencil:#959DAE;--rule:#2C323D;--pen:#86A6FF;--pen2:#6B8FFF;--hi:#5C4C10;--cat:#E5E8EE}}
+:root[data-theme=dark]{--paper:#0D0F14;--sheet:#161920;--ink:#E5E8EE;--pencil:#959DAE;--rule:#2C323D;--pen:#86A6FF;--pen2:#6B8FFF;--hi:#5C4C10;--cat:#E5E8EE;color-scheme:dark}
+*{box-sizing:border-box;margin:0;padding:0}
+body{min-height:100vh;display:grid;place-items:center;background:var(--paper);color:var(--ink);font:16px/1.6 "Schibsted Grotesk",system-ui,sans-serif;padding:16px;overflow-x:hidden}
+
+/* animated bg dots */
+body::before{content:"";position:fixed;inset:0;background-image:radial-gradient(var(--rule) 1px,transparent 1px);background-size:28px 28px;opacity:.6;pointer-events:none;z-index:0}
+
+.card{position:relative;z-index:1;background:var(--sheet);border-radius:20px;max-width:26rem;width:100%;padding:40px 36px 36px;box-shadow:0 4px 6px -1px rgba(0,0,0,.07),0 20px 60px -10px rgba(32,80,192,.12);border:1px solid var(--rule)}
+
+/* logo */
+.logo{display:flex;align-items:center;gap:12px;margin-bottom:28px}
+.logo-icon{width:44px;height:44px;background:var(--pen);border-radius:12px;display:grid;place-items:center;flex-shrink:0}
+.logo-icon svg{color:#fff}
+.logo-name{font-size:1.8rem;font-weight:700;letter-spacing:-.04em;line-height:1}
+.logo-tag{font-size:.78rem;color:var(--pencil);letter-spacing:.02em;margin-top:2px}
+
+/* tagline */
+.lede{color:var(--pencil);font-size:.95rem;margin-bottom:28px;line-height:1.5}
+
+/* error */
+.warn{background:var(--hi);color:#1a1200;padding:10px 14px;border-radius:10px;font-size:.88rem;margin-bottom:18px;display:flex;align-items:center;gap:8px}
+
+/* password form */
+.pw{display:grid;gap:10px;margin-bottom:16px}
+.pw label{font-weight:600;font-size:.85rem;color:var(--pencil);letter-spacing:.03em;text-transform:uppercase}
+.pw input{font:inherit;padding:12px 14px;border:1.5px solid var(--rule);border-radius:10px;background:var(--paper);color:var(--ink);transition:border-color .15s,box-shadow .15s;font-size:.95rem}
+.pw input:focus{outline:none;border-color:var(--pen);box-shadow:0 0 0 3px rgba(32,80,192,.12)}
+.btn{font:inherit;font-weight:700;border:none;border-radius:10px;padding:12px 22px;background:linear-gradient(135deg,var(--pen),var(--pen2));color:#fff;cursor:pointer;font-size:.95rem;width:100%;transition:opacity .15s,transform .1s;letter-spacing:.01em}
+.btn:hover{opacity:.9}
+.btn:active{transform:scale(.98)}
+
+/* or divider */
+.or{display:flex;align-items:center;gap:12px;margin:20px 0;color:var(--pencil);font-size:.85rem}
+.or::before,.or::after{content:"";flex:1;height:1px;background:var(--rule)}
+
+/* google btn */
+.btn-google{display:flex;align-items:center;justify-content:center;gap:10px;font:inherit;font-weight:600;font-size:.95rem;border:1.5px solid var(--rule);border-radius:10px;padding:11px 20px;background:var(--sheet);color:var(--ink);cursor:pointer;text-decoration:none;transition:border-color .15s,box-shadow .15s,background .15s;width:100%}
+.btn-google:hover{border-color:var(--pen);box-shadow:0 2px 12px rgba(32,80,192,.1);background:var(--paper)}
+
+/* dev btn */
+.btn-dev{display:inline-flex;align-items:center;gap:6px;font:inherit;font-size:.85rem;color:var(--pencil);background:transparent;border:1px dashed var(--rule);border-radius:8px;padding:8px 14px;cursor:pointer;text-decoration:none;margin-top:14px;transition:color .15s;width:100%;justify-content:center}
+.btn-dev:hover{color:var(--ink);border-color:var(--pencil)}
+
+.fine{color:var(--pencil);font-size:.82rem;margin-top:12px;line-height:1.5;text-align:center}
+.setup-msg{color:var(--pencil);font-size:.88rem;padding:14px;background:var(--paper);border-radius:10px;text-align:center;line-height:1.6}
+.setup-msg code{font-size:.85em;background:var(--rule);padding:1px 5px;border-radius:4px}
+
+/* ---- CAT ---- */
+#noty-cat{position:fixed;pointer-events:none;z-index:9999;width:60px;height:60px;transform:translate(-50%,-80%);transition:left .08s cubic-bezier(.17,.67,.35,1.2),top .08s cubic-bezier(.17,.67,.35,1.2);font-size:52px;line-height:1;user-select:none;filter:drop-shadow(0 2px 4px rgba(0,0,0,.2));will-change:left,top}
+#noty-cat .body{position:relative;display:inline-block;animation:catBob 1.2s ease-in-out infinite}
+#noty-cat .eyes{position:absolute;top:28px;left:50%;transform:translateX(-50%);display:flex;gap:4px;font-size:12px;line-height:1}
+#noty-cat .paw{position:absolute;bottom:-4px;left:50%;transform:translateX(-50%);font-size:14px;animation:pawWave .6s ease-in-out infinite alternate}
+@keyframes catBob{0%,100%{transform:translateY(0) rotate(-3deg)}50%{transform:translateY(-6px) rotate(3deg)}}
+@keyframes pawWave{from{transform:translateX(-50%) rotate(-20deg)}to{transform:translateX(-50%) rotate(20deg)}}
+</style>
+</head>
+<body>
+
+<!-- cursor cat -->
+<div id="noty-cat" aria-hidden="true">
+  <div class="body">🐱
+    <div class="paw">🐾</div>
+  </div>
+</div>
+
+<div class="card">
+  <div class="logo">
+    <div class="logo-icon">
+      <svg width="24" height="24" fill="none" viewBox="0 0 24 24"><path d="M4 4h16v2H4V4zm0 4h10v2H4V8zm0 4h16v2H4v-2zm0 4h10v2H4v-2z" fill="currentColor"/></svg>
+    </div>
+    <div>
+      <div class="logo-name">Noty</div>
+      <div class="logo-tag">AI-powered notebooks</div>
+    </div>
+  </div>
+  <p class="lede">Your notebook — write together with your AI assistants in real time.</p>
+  ${error ? `<div class="warn" role="alert">⚠️ ${esc(error)}</div>` : ""}
+  ${body}
+</div>
+
+<script>
+(function(){
+  var cat = document.getElementById('noty-cat');
+  var mx = window.innerWidth/2, my = window.innerHeight/2;
+  var cx = mx, cy = my;
+  var frames = ['🐱','😺','😸','🐱','😹'];
+  var fi = 0, idle = null;
+  var CATS = ['🐱','😺','😸','😻','🙀','😾'];
+
+  document.addEventListener('mousemove', function(e){
+    mx = e.clientX; my = e.clientY;
+    clearTimeout(idle);
+    idle = setTimeout(function(){
+      // fall asleep when idle
+      cat.querySelector('.body').textContent = '😴';
+      cat.querySelector('.body').appendChild(cat.querySelector('.paw'));
+    }, 3000);
+  });
+
+  // wiggle face on click
+  document.addEventListener('click', function(){
+    var bodyEl = cat.querySelector('.body');
+    var old = bodyEl.firstChild.nodeValue || bodyEl.textContent.trim()[0];
+    bodyEl.childNodes[0].nodeValue = '🙀';
+    setTimeout(function(){ bodyEl.childNodes[0].nodeValue = '😸'; }, 300);
+    setTimeout(function(){ bodyEl.childNodes[0].nodeValue = '🐱'; }, 700);
+  });
+
+  // lazy follow with spring/lag
+  function loop(){
+    var dx = mx - cx, dy = my - cy;
+    cx += dx * 0.12;
+    cy += dy * 0.12;
+    cat.style.left = cx + 'px';
+    cat.style.top  = cy + 'px';
+
+    // face direction
+    var body = cat.querySelector('.body');
+    if(dx > 8) body.style.transform = 'scaleX(1)';
+    else if(dx < -8) body.style.transform = 'scaleX(-1)';
+
+    // speed-based expression
+    var speed = Math.sqrt(dx*dx+dy*dy);
+    var bodyText = body.firstChild.nodeValue || '';
+    if(speed > 60) body.firstChild.nodeValue = '🏃';
+    else if(speed > 20) body.firstChild.nodeValue = '😺';
+    else body.firstChild.nodeValue = '🐱';
+
+    requestAnimationFrame(loop);
+  }
+  cat.style.left = cx+'px';
+  cat.style.top  = cy+'px';
+  loop();
+})();
+</script>
+</body></html>`;
 }
 
 app.get("/login", (c) => signInPage(c.env, safeNext(c.req.query("next"))));
