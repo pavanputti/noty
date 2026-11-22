@@ -89,153 +89,602 @@ function loginShell(error: string, body: string): string {
   return `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Sign in · Noty</title><link rel="icon" href="/favicon.svg">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
-/* ── THEMES ── */
-[data-t="dawn"]     {--bg:#FDF6EE;--card:#FFFFFF;--ink:#2C1810;--muted:#9C7B6E;--border:#EDD9CC;--accent:#C0622F;--accent2:#E8956A;--ring:rgba(192,98,47,.18)}
-[data-t="glacier"]  {--bg:#EEF4FA;--card:#FFFFFF;--ink:#152840;--muted:#527A9B;--border:#C8DFF0;--accent:#1E6BA8;--accent2:#3B8FD4;--ring:rgba(30,107,168,.18)}
-[data-t="sage"]     {--bg:#EEF3EE;--card:#FFFFFF;--ink:#192A1E;--muted:#587A5F;--border:#C4DAC6;--accent:#2E7D45;--accent2:#4EA86A;--ring:rgba(46,125,69,.18)}
-[data-t="lavender"] {--bg:#F2F0FA;--card:#FFFFFF;--ink:#231B40;--muted:#7467A0;--border:#D3CCEE;--accent:#5B44B0;--accent2:#8571D4;--ring:rgba(91,68,176,.18)}
-[data-t="rose"]     {--bg:#FAF0F3;--card:#FFFFFF;--ink:#3A1020;--muted:#A05070;--border:#EEC8D4;--accent:#C0325A;--accent2:#E0607E;--ring:rgba(192,50,90,.18)}
-[data-t="slate"]    {--bg:#EEF0F5;--card:#FFFFFF;--ink:#1A2035;--muted:#606880;--border:#CDD2E0;--accent:#3A4F7A;--accent2:#5F7AAD;--ring:rgba(58,79,122,.18)}
-[data-t="amber"]    {--bg:#FBF5E8;--card:#FFFFFF;--ink:#2A1A00;--muted:#8A6A1A;--border:#E8D5A0;--accent:#B87800;--accent2:#E09B00;--ring:rgba(184,120,0,.18)}
-[data-t="teal"]     {--bg:#EBF5F5;--card:#FFFFFF;--ink:#0E2A2A;--muted:#3A7070;--border:#B8DADA;--accent:#0F7070;--accent2:#259494;--ring:rgba(15,112,112,.18)}
-[data-t="midnight"] {--bg:#0F111A;--card:#181C28;--ink:#E0E4F0;--muted:#7880A0;--border:#262C40;--accent:#6B8FFF;--accent2:#90AEFF;--ring:rgba(107,143,255,.2);color-scheme:dark}
-[data-t="charcoal"] {--bg:#141618;--card:#1E2125;--ink:#D8DCE8;--muted:#70788C;--border:#2A2E35;--accent:#A0AACC;--accent2:#C0CAEE;--ring:rgba(160,170,204,.2);color-scheme:dark}
-[data-t="forest"]   {--bg:#0D1710;--card:#141F17;--ink:#C8E0CC;--muted:#527A58;--border:#1E3022;--accent:#4DB870;--accent2:#70D890;--ring:rgba(77,184,112,.2);color-scheme:dark}
-[data-t="plum"]     {--bg:#130D1C;--card:#1C1428;--ink:#E0D0F4;--muted:#8060A8;--border:#2A1E3E;--accent:#A87AE0;--accent2:#C8A0FF;--ring:rgba(168,122,224,.2);color-scheme:dark}
-[data-t="crimson"]  {--bg:#160A0A;--card:#201212;--ink:#F0D8D8;--muted:#A05050;--border:#301818;--accent:#E05050;--accent2:#FF7878;--ring:rgba(224,80,80,.2);color-scheme:dark}
-[data-t="ocean"]    {--bg:#060E1A;--card:#0C1828;--ink:#C0D8F0;--muted:#3A6090;--border:#102030;--accent:#3A8FD4;--accent2:#60AEFF;--ring:rgba(58,143,212,.2);color-scheme:dark}
-[data-t="sand"]     {--bg:#F5F0E8;--card:#FDFAF5;--ink:#2A2010;--muted:#8A7860;--border:#E0D4BC;--accent:#8A6840;--accent2:#B08A5A;--ring:rgba(138,104,64,.18)}
-
+/* ── BASE RESET ── */
 *{box-sizing:border-box;margin:0;padding:0}
-html,body{height:100%}
-body{min-height:100vh;display:flex;align-items:center;justify-content:center;background:var(--bg);color:var(--ink);font:15px/1.6 "Inter",system-ui,sans-serif;padding:20px;transition:background .4s,color .4s}
+html,body{min-height:100vh}
+body{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font:15px/1.6 "Plus Jakarta Sans",system-ui,-apple-system,sans-serif;
+  padding:24px 16px;
+  background-color:var(--bg);
+  background-image:var(--pattern);
+  background-size:var(--pat-size,auto);
+  background-position:center;
+  color:var(--ink);
+  transition:background-color .4s cubic-bezier(.16,1,.3,1),color .3s ease;
+  position:relative;
+}
 
-/* subtle mesh gradient bg */
-.bg-mesh{position:fixed;inset:0;pointer-events:none;z-index:0;background:radial-gradient(ellipse 80% 60% at 20% 20%,rgba(var(--accent-rgb,.06),0.06) 0%,transparent 60%),radial-gradient(ellipse 60% 80% at 80% 80%,rgba(var(--accent-rgb,.04),0.04) 0%,transparent 60%);opacity:.7}
+/* ── 16 PATTERN THEMES (LIGHT & DARK ARCHITECTURAL & TEXTURAL PATTERNS) ── */
 
-.wrap{position:relative;z-index:1;width:100%;max-width:400px}
+/* 1. Blueprint (Architectural precision drafting) */
+[data-t="blueprint"]{
+  --bg:#0A1B38;
+  --pattern:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='40' viewBox='0 0 40 40'%3E%3Cpath d='M0 40V0h40' fill='none' stroke='%233B82F6' stroke-width='1' stroke-opacity='0.22'/%3E%3Cpath d='M0 10h40M0 20h40M0 30h40M10 0v40M20 0v40M30 0v40' fill='none' stroke='%2360A5FA' stroke-width='0.5' stroke-opacity='0.1'/%3E%3C/svg%3E");
+  --pat-size:40px 40px;
+  --card:rgba(12, 28, 58, 0.84);
+  --border:rgba(96, 165, 250, 0.28);
+  --ink:#F0F6FF;
+  --muted:#93C5FD;
+  --accent:#3B82F6;
+  --ring:rgba(59, 130, 246, 0.3);
+  --card-shadow:0 24px 50px -12px rgba(2, 10, 25, 0.65);
+  color-scheme:dark;
+}
 
-/* card */
-.card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:36px 32px 28px;box-shadow:0 2px 4px rgba(0,0,0,.04),0 8px 32px rgba(0,0,0,.06)}
+/* 2. Graph Paper (Engineering & mathematical notebooks) */
+[data-t="graph"]{
+  --bg:#F8FAF9;
+  --pattern:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'%3E%3Cpath d='M0 24V0h24' fill='none' stroke='%232563EB' stroke-width='0.75' stroke-opacity='0.14'/%3E%3C/svg%3E");
+  --pat-size:24px 24px;
+  --card:rgba(255, 255, 255, 0.94);
+  --border:#DDE3EA;
+  --ink:#142033;
+  --muted:#57677D;
+  --accent:#2563EB;
+  --ring:rgba(37, 99, 235, 0.18);
+  --card-shadow:0 20px 45px -10px rgba(37, 99, 235, 0.1);
+  color-scheme:light;
+}
 
-/* brand */
-.brand{display:flex;align-items:center;gap:11px;margin-bottom:24px}
-.brand-mark{width:40px;height:40px;border-radius:10px;background:var(--accent);display:grid;place-items:center;flex-shrink:0;box-shadow:0 2px 8px var(--ring)}
-.brand-mark svg{color:#fff;width:20px;height:20px}
-.brand-name{font-size:1.5rem;font-weight:700;letter-spacing:-.03em;line-height:1.1;color:var(--ink)}
-.brand-sub{font-size:.72rem;color:var(--muted);letter-spacing:.04em;text-transform:uppercase;margin-top:1px}
+/* 3. Bullet Journal (Warm dot-matrix stationery) */
+[data-t="dots"]{
+  --bg:#F5F3EF;
+  --pattern:radial-gradient(circle, #786C5E 1.25px, transparent 1.25px);
+  --pat-size:20px 20px;
+  --card:rgba(255, 255, 255, 0.95);
+  --border:#E5E0D8;
+  --ink:#28231D;
+  --muted:#7A7065;
+  --accent:#855836;
+  --ring:rgba(133, 88, 54, 0.18);
+  --card-shadow:0 20px 45px -10px rgba(70, 50, 30, 0.08);
+  color-scheme:light;
+}
 
-/* headline */
-.headline{font-size:1.1rem;font-weight:600;color:var(--ink);margin-bottom:6px;letter-spacing:-.01em}
-.sub{font-size:.88rem;color:var(--muted);margin-bottom:26px;line-height:1.55}
+/* 4. Ruled Legal Pad (Classic lined paper with margin) */
+[data-t="notebook"]{
+  --bg:#FAF9F5;
+  --pattern:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100%25' height='28'%3E%3Cline x1='0' y1='27' x2='100%25' y2='27' stroke='%233B82F6' stroke-width='0.75' stroke-opacity='0.18'/%3E%3C/svg%3E");
+  --pat-size:100% 28px;
+  --card:rgba(255, 255, 255, 0.96);
+  --border:#E8E4DA;
+  --ink:#1F242E;
+  --muted:#667085;
+  --accent:#1D4ED8;
+  --ring:rgba(29, 78, 216, 0.16);
+  --card-shadow:0 20px 45px -10px rgba(0, 0, 0, 0.06);
+  color-scheme:light;
+}
 
-/* error */
-.err{background:rgba(220,50,50,.1);border:1px solid rgba(220,50,50,.25);color:#c82020;padding:10px 14px;border-radius:10px;font-size:.85rem;margin-bottom:18px;display:flex;align-items:flex-start;gap:8px}
-[data-t="midnight"] .err,[data-t="charcoal"] .err,[data-t="forest"] .err,[data-t="plum"] .err,[data-t="crimson"] .err,[data-t="ocean"] .err{color:#ff8080}
+/* 5. Topography (Alpine contour elevation maps) */
+[data-t="topo"]{
+  --bg:#0F241C;
+  --pattern:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='80' viewBox='0 0 80 80'%3E%3Cpath d='M0 20 Q20 5 40 20 T80 20M0 40 Q25 15 50 40 T80 40M0 60 Q20 45 40 60 T80 60M0 80 Q30 55 60 80 T80 80' fill='none' stroke='%2334D399' stroke-width='1' stroke-opacity='0.22'/%3E%3C/svg%3E");
+  --pat-size:80px 80px;
+  --card:rgba(18, 42, 33, 0.86);
+  --border:rgba(52, 211, 153, 0.28);
+  --ink:#ECFDF5;
+  --muted:#A7F3D0;
+  --accent:#10B981;
+  --ring:rgba(16, 185, 129, 0.3);
+  --card-shadow:0 24px 50px -12px rgba(5, 20, 14, 0.7);
+  color-scheme:dark;
+}
 
-/* label */
-.field{display:flex;flex-direction:column;gap:6px;margin-bottom:12px}
-.field label{font-size:.78rem;font-weight:600;color:var(--muted);letter-spacing:.05em;text-transform:uppercase}
-.field input{font:inherit;font-size:.93rem;padding:11px 14px;border:1.5px solid var(--border);border-radius:10px;background:var(--bg);color:var(--ink);outline:none;transition:border-color .15s,box-shadow .15s}
-.field input:focus{border-color:var(--accent);box-shadow:0 0 0 3px var(--ring)}
+/* 6. Seigaiha Waves (Zen Japanese fan ripples) */
+[data-t="waves"]{
+  --bg:#EDF4F5;
+  --pattern:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='48' height='24' viewBox='0 0 48 24'%3E%3Cpath d='M0 24 A24 24 0 0 1 48 24 M6 24 A18 18 0 0 1 42 24 M12 24 A12 12 0 0 1 36 24 M18 24 A6 6 0 0 1 30 24' fill='none' stroke='%230E7490' stroke-width='1' stroke-opacity='0.16'/%3E%3Cpath d='M24 12 A24 24 0 0 1 72 12 M-24 12 A24 24 0 0 1 24 12' fill='none' stroke='%230E7490' stroke-width='1' stroke-opacity='0.16'/%3E%3C/svg%3E");
+  --pat-size:48px 24px;
+  --card:rgba(255, 255, 255, 0.94);
+  --border:#CFE0E5;
+  --ink:#112E38;
+  --muted:#496F7B;
+  --accent:#0891B2;
+  --ring:rgba(8, 145, 178, 0.18);
+  --card-shadow:0 20px 45px -10px rgba(8, 145, 178, 0.12);
+  color-scheme:light;
+}
 
-/* primary btn */
-.btn-primary{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:11px 20px;background:var(--accent);color:#fff;font:inherit;font-size:.93rem;font-weight:600;border:none;border-radius:10px;cursor:pointer;transition:opacity .15s,transform .1s,box-shadow .15s;box-shadow:0 2px 8px var(--ring);letter-spacing:.01em;margin-top:4px}
-.btn-primary:hover{opacity:.88;box-shadow:0 4px 16px var(--ring)}
-.btn-primary:active{transform:scale(.98);opacity:.95}
+/* 7. Isometric Cubes (3D spatial geometry) */
+[data-t="isometric"]{
+  --bg:#121620;
+  --pattern:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='56' height='97' viewBox='0 0 56 97'%3E%3Cg fill='none' stroke='%23818CF8' stroke-width='0.8' stroke-opacity='0.2'%3E%3Cpath d='M28 0L0 16.2v32.3L28 64.8l28-16.3V16.2L28 0z'/%3E%3Cpath d='M28 0v32.4L0 48.5M28 32.4l28 16.1'/%3E%3Cpath d='M28 64.8v32.2L0 80.8M28 97l28-16.2V48.5'/%3E%3C/g%3E%3C/svg%3E");
+  --pat-size:56px 97px;
+  --card:rgba(22, 28, 42, 0.86);
+  --border:rgba(129, 140, 248, 0.28);
+  --ink:#EEF2FF;
+  --muted:#A5B4FC;
+  --accent:#6366F1;
+  --ring:rgba(99, 102, 241, 0.3);
+  --card-shadow:0 24px 50px -12px rgba(8, 11, 18, 0.7);
+  color-scheme:dark;
+}
 
-/* divider */
-.divider{display:flex;align-items:center;gap:12px;margin:18px 0;color:var(--muted);font-size:.8rem}
+/* 8. Art Deco Trellis (Vintage geometric diamonds) */
+[data-t="artdeco"]{
+  --bg:#201714;
+  --pattern:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='36' height='36' viewBox='0 0 36 36'%3E%3Cpath d='M18 0 L36 18 L18 36 L0 18 Z' fill='none' stroke='%23F59E0B' stroke-width='1' stroke-opacity='0.22'/%3E%3Ccircle cx='18' cy='18' r='3' fill='%23F59E0B' fill-opacity='0.2'/%3E%3C/svg%3E");
+  --pat-size:36px 36px;
+  --card:rgba(38, 28, 24, 0.88);
+  --border:rgba(245, 158, 11, 0.26);
+  --ink:#FFFBEB;
+  --muted:#FDE68A;
+  --accent:#D97706;
+  --ring:rgba(217, 119, 6, 0.3);
+  --card-shadow:0 24px 50px -12px rgba(18, 10, 8, 0.7);
+  color-scheme:dark;
+}
+
+/* 9. Constellation (Celestial night & stars) */
+[data-t="cosmos"]{
+  --bg:#0A0C16;
+  --pattern:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 100 100'%3E%3Cg fill='%2393C5FD' fill-opacity='0.7'%3E%3Ccircle cx='15' cy='20' r='1.5'/%3E%3Ccircle cx='48' cy='12' r='1'/%3E%3Ccircle cx='80' cy='35' r='1.5'/%3E%3Ccircle cx='35' cy='65' r='1'/%3E%3Ccircle cx='70' cy='82' r='2'/%3E%3Ccircle cx='92' cy='75' r='1'/%3E%3C/g%3E%3Cpath d='M15 20L48 12M80 35L70 82L92 75' stroke='%2360A5FA' stroke-width='0.6' stroke-opacity='0.2' fill='none'/%3E%3C/svg%3E");
+  --pat-size:100px 100px;
+  --card:rgba(16, 20, 36, 0.86);
+  --border:rgba(147, 197, 253, 0.24);
+  --ink:#F8FAFC;
+  --muted:#94A3B8;
+  --accent:#38BDF8;
+  --ring:rgba(56, 189, 248, 0.3);
+  --card-shadow:0 24px 50px -12px rgba(3, 4, 10, 0.8);
+  color-scheme:dark;
+}
+
+/* 10. Honeycomb (Biomimetic hexagonal cells) */
+[data-t="honeycomb"]{
+  --bg:#1A140B;
+  --pattern:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='42' height='72' viewBox='0 0 42 72'%3E%3Cpath d='M0 12 L21 0 L42 12 L42 36 L21 48 L0 36 Z M0 48 L21 36 L42 48 L42 72 L21 84 L0 72 Z' fill='none' stroke='%23EAB308' stroke-width='0.8' stroke-opacity='0.22'/%3E%3C/svg%3E");
+  --pat-size:42px 72px;
+  --card:rgba(34, 26, 15, 0.88);
+  --border:rgba(234, 179, 8, 0.28);
+  --ink:#FEFCE8;
+  --muted:#FEF08A;
+  --accent:#CA8A04;
+  --ring:rgba(202, 138, 4, 0.3);
+  --card-shadow:0 24px 50px -12px rgba(12, 8, 4, 0.7);
+  color-scheme:dark;
+}
+
+/* 11. Circuit Matrix (Cybernetic microtraces) */
+[data-t="circuit"]{
+  --bg:#071613;
+  --pattern:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='60' height='60' viewBox='0 0 60 60'%3E%3Cpath d='M0 30h20l10-10h30M20 30l10 10h15M45 40v15M30 0v10M0 50h15l5 5' fill='none' stroke='%232DD4BF' stroke-width='1' stroke-opacity='0.22'/%3E%3Ccircle cx='30' cy='10' r='2' fill='%232DD4BF' fill-opacity='0.3'/%3E%3Ccircle cx='45' cy='55' r='2' fill='%232DD4BF' fill-opacity='0.3'/%3E%3C/svg%3E");
+  --pat-size:60px 60px;
+  --card:rgba(10, 30, 26, 0.86);
+  --border:rgba(45, 212, 191, 0.28);
+  --ink:#F0FDFA;
+  --muted:#99F6E4;
+  --accent:#14B8A6;
+  --ring:rgba(20, 184, 166, 0.3);
+  --card-shadow:0 24px 50px -12px rgba(2, 12, 10, 0.75);
+  color-scheme:dark;
+}
+
+/* 12. Herringbone (Refined diagonal textile weave) */
+[data-t="herringbone"]{
+  --bg:#EEF1F6;
+  --pattern:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='40' viewBox='0 0 40 40'%3E%3Cpath d='M0 10 L20 0 L40 10 M0 30 L20 20 L40 30 M20 20 v20 M20 0 v20' fill='none' stroke='%23475569' stroke-width='0.9' stroke-opacity='0.15'/%3E%3C/svg%3E");
+  --pat-size:40px 40px;
+  --card:rgba(255, 255, 255, 0.94);
+  --border:#D4DBE5;
+  --ink:#1E293B;
+  --muted:#5A6B82;
+  --accent:#334155;
+  --ring:rgba(51, 65, 85, 0.18);
+  --card-shadow:0 20px 45px -10px rgba(51, 65, 85, 0.1);
+  color-scheme:light;
+}
+
+/* 13. Arabesque Lattice (Moroccan geometry) */
+[data-t="moroccan"]{
+  --bg:#1A1126;
+  --pattern:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='48' height='48' viewBox='0 0 48 48'%3E%3Cpath d='M24 0 C16 12 16 12 0 24 C16 36 16 36 24 48 C32 36 32 36 48 24 C32 12 32 12 24 0 Z' fill='none' stroke='%23C084FC' stroke-width='0.9' stroke-opacity='0.22'/%3E%3C/svg%3E");
+  --pat-size:48px 48px;
+  --card:rgba(34, 22, 50, 0.86);
+  --border:rgba(192, 132, 252, 0.28);
+  --ink:#FAF5FF;
+  --muted:#E9D5FF;
+  --accent:#A855F7;
+  --ring:rgba(168, 85, 247, 0.3);
+  --card-shadow:0 24px 50px -12px rgba(12, 6, 20, 0.7);
+  color-scheme:dark;
+}
+
+/* 14. Terrazzo (Scandinavian flecked stone) */
+[data-t="terrazzo"]{
+  --bg:#F4EFEB;
+  --pattern:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='60' height='60' viewBox='0 0 60 60'%3E%3Cpath d='M10 12 L14 10 L12 16 Z' fill='%23C27856' fill-opacity='0.28'/%3E%3Cpath d='M45 15 L50 18 L48 22 L42 20 Z' fill='%234F7061' fill-opacity='0.25'/%3E%3Cpath d='M25 40 L30 38 L32 44 L26 45 Z' fill='%23384558' fill-opacity='0.24'/%3E%3Ccircle cx='18' cy='48' r='2' fill='%23C27856' fill-opacity='0.28'/%3E%3Ccircle cx='52' cy='48' r='2.5' fill='%23B88746' fill-opacity='0.28'/%3E%3C/svg%3E");
+  --pat-size:60px 60px;
+  --card:rgba(255, 255, 255, 0.94);
+  --border:#E5DED5;
+  --ink:#2C241E;
+  --muted:#736458;
+  --accent:#995D3F;
+  --ring:rgba(153, 93, 63, 0.18);
+  --card-shadow:0 20px 45px -10px rgba(100, 70, 50, 0.1);
+  color-scheme:light;
+}
+
+/* 15. Sine Wave Aurora (Fluid Nordic stream curves) */
+[data-t="aurora"]{
+  --bg:#0A1C24;
+  --pattern:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='60' viewBox='0 0 100 60'%3E%3Cpath d='M0 30 Q25 10 50 30 T100 30 M0 45 Q25 25 50 45 T100 45 M0 15 Q25 -5 50 15 T100 15' fill='none' stroke='%2322D3EE' stroke-width='1' stroke-opacity='0.22'/%3E%3C/svg%3E");
+  --pat-size:100px 60px;
+  --card:rgba(14, 35, 46, 0.86);
+  --border:rgba(34, 211, 238, 0.28);
+  --ink:#ECFEFF;
+  --muted:#A5F3FC;
+  --accent:#06B6D4;
+  --ring:rgba(6, 182, 212, 0.3);
+  --card-shadow:0 24px 50px -12px rgba(4, 12, 18, 0.75);
+  color-scheme:dark;
+}
+
+/* 16. Carbon Matrix (High-performance micro-twill) */
+[data-t="carbon"]{
+  --bg:#121418;
+  --pattern:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16'%3E%3Crect width='8' height='8' fill='%231B1E24'/%3E%3Crect x='8' y='8' width='8' height='8' fill='%231B1E24'/%3E%3Cline x1='0' y1='0' x2='8' y2='8' stroke='%23282C36' stroke-width='0.75'/%3E%3Cline x1='8' y1='8' x2='16' y2='16' stroke='%23282C36' stroke-width='0.75'/%3E%3C/svg%3E");
+  --pat-size:16px 16px;
+  --card:rgba(24, 27, 34, 0.88);
+  --border:rgba(148, 163, 184, 0.24);
+  --ink:#F1F5F9;
+  --muted:#94A3B8;
+  --accent:#64748B;
+  --ring:rgba(100, 116, 139, 0.28);
+  --card-shadow:0 24px 50px -12px rgba(4, 5, 8, 0.8);
+  color-scheme:dark;
+}
+
+/* ── FROSTED CARD & LAYOUT ── */
+.wrap{
+  position:relative;
+  z-index:2;
+  width:100%;
+  max-width:420px;
+  animation:cardFade .4s ease-out;
+}
+@keyframes cardFade{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+
+.card{
+  background:var(--card);
+  border:1.5px solid var(--border);
+  border-radius:24px;
+  padding:36px 32px 28px;
+  box-shadow:var(--card-shadow);
+  backdrop-filter:blur(22px);
+  -webkit-backdrop-filter:blur(22px);
+  transition:background-color .3s,border-color .3s,box-shadow .3s;
+}
+
+/* Header & Brand */
+.header{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px}
+.brand{display:flex;align-items:center;gap:12px}
+.brand-mark{
+  width:42px;
+  height:42px;
+  border-radius:12px;
+  background:var(--accent);
+  display:grid;
+  place-items:center;
+  box-shadow:0 4px 12px var(--ring);
+  transition:background-color .3s;
+}
+.brand-mark svg{width:22px;height:22px;color:#fff}
+.brand-name{font-size:1.55rem;font-weight:700;letter-spacing:-.03em;color:var(--ink);line-height:1}
+.brand-sub{font-size:.74rem;color:var(--muted);letter-spacing:.04em;text-transform:uppercase;margin-top:2px}
+
+.theme-pill{
+  font-family:"JetBrains Mono",monospace;
+  font-size:.72rem;
+  padding:4px 9px;
+  background:rgba(128,128,128,.1);
+  border:1px solid var(--border);
+  border-radius:20px;
+  color:var(--muted);
+  display:inline-flex;
+  align-items:center;
+  gap:5px;
+}
+
+.headline{font-size:1.15rem;font-weight:600;color:var(--ink);margin-bottom:6px;letter-spacing:-.015em}
+.sub{font-size:.88rem;color:var(--muted);margin-bottom:24px;line-height:1.5}
+
+/* Error banner */
+.err{
+  background:rgba(239, 68, 68, 0.12);
+  border:1px solid rgba(239, 68, 68, 0.3);
+  color:#EF4444;
+  padding:11px 14px;
+  border-radius:12px;
+  font-size:.86rem;
+  margin-bottom:18px;
+  display:flex;
+  align-items:center;
+  gap:8px;
+}
+[data-t="blueprint"] .err,[data-t="topo"] .err,[data-t="isometric"] .err,[data-t="artdeco"] .err,[data-t="cosmos"] .err,[data-t="honeycomb"] .err,[data-t="circuit"] .err,[data-t="moroccan"] .err,[data-t="aurora"] .err,[data-t="carbon"] .err{color:#FCA5A5}
+
+/* Form controls */
+.field{display:flex;flex-direction:column;gap:7px;margin-bottom:14px}
+.field label{font-size:.78rem;font-weight:600;color:var(--muted);letter-spacing:.04em;text-transform:uppercase}
+.field input{
+  font:inherit;
+  font-size:.95rem;
+  padding:12px 16px;
+  border:1.5px solid var(--border);
+  border-radius:12px;
+  background:rgba(128,128,128,.05);
+  color:var(--ink);
+  outline:none;
+  transition:border-color .15s,box-shadow .15s,background-color .15s;
+}
+.field input:focus{
+  border-color:var(--accent);
+  box-shadow:0 0 0 3.5px var(--ring);
+  background:transparent;
+}
+
+/* Buttons */
+.btn-primary{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:8px;
+  width:100%;
+  padding:12px 22px;
+  background:var(--accent);
+  color:#fff;
+  font:inherit;
+  font-size:.95rem;
+  font-weight:600;
+  border:none;
+  border-radius:12px;
+  cursor:pointer;
+  transition:transform .12s,opacity .15s,box-shadow .15s;
+  box-shadow:0 4px 14px var(--ring);
+  margin-top:6px;
+}
+.btn-primary:hover{opacity:.92;box-shadow:0 6px 20px var(--ring)}
+.btn-primary:active{transform:scale(.98)}
+
+.divider{display:flex;align-items:center;gap:12px;margin:18px 0;color:var(--muted);font-size:.82rem}
 .divider::before,.divider::after{content:"";flex:1;height:1px;background:var(--border)}
 
-/* google btn */
-.btn-google{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;padding:11px 20px;background:var(--card);color:var(--ink);font:inherit;font-size:.93rem;font-weight:500;border:1.5px solid var(--border);border-radius:10px;cursor:pointer;text-decoration:none;transition:border-color .15s,box-shadow .15s,background .15s}
-.btn-google:hover{border-color:var(--accent);box-shadow:0 2px 12px var(--ring)}
+.btn-google{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:10px;
+  width:100%;
+  padding:11px 20px;
+  background:rgba(128,128,128,.06);
+  color:var(--ink);
+  font:inherit;
+  font-size:.93rem;
+  font-weight:500;
+  border:1.5px solid var(--border);
+  border-radius:12px;
+  cursor:pointer;
+  text-decoration:none;
+  transition:border-color .15s,box-shadow .15s,background-color .15s;
+}
+.btn-google:hover{border-color:var(--accent);background:rgba(128,128,128,.1);box-shadow:0 2px 12px var(--ring)}
 
-/* dev btn */
-.btn-dev{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:9px 16px;background:transparent;color:var(--muted);font:inherit;font-size:.82rem;border:1px dashed var(--border);border-radius:9px;cursor:pointer;text-decoration:none;margin-top:12px;transition:color .15s,border-color .15s}
+.btn-dev{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:8px;
+  width:100%;
+  padding:9px 16px;
+  background:transparent;
+  color:var(--muted);
+  font:inherit;
+  font-size:.82rem;
+  border:1px dashed var(--border);
+  border-radius:10px;
+  cursor:pointer;
+  text-decoration:none;
+  margin-top:12px;
+  transition:color .15s,border-color .15s;
+}
 .btn-dev:hover{color:var(--ink);border-color:var(--muted)}
 
-.note{font-size:.78rem;color:var(--muted);text-align:center;margin-top:12px;line-height:1.55}
+.note{font-size:.8rem;color:var(--muted);text-align:center;margin-top:12px;line-height:1.55}
 
-/* ── THEME PICKER ── */
-.theme-bar{margin-top:20px;padding-top:18px;border-top:1px solid var(--border)}
-.theme-label{font-size:.72rem;font-weight:600;color:var(--muted);letter-spacing:.06em;text-transform:uppercase;margin-bottom:10px}
-.theme-grid{display:flex;flex-wrap:wrap;gap:7px}
-.swatch{width:26px;height:26px;border-radius:50%;border:2px solid transparent;cursor:pointer;transition:transform .15s,box-shadow .15s;position:relative;flex-shrink:0}
-.swatch:hover{transform:scale(1.2)}
-.swatch.active{border-color:var(--accent);box-shadow:0 0 0 2px var(--ring),0 0 0 4px var(--card)}
-.swatch[title]:hover::after{content:attr(title);position:absolute;bottom:calc(100% + 6px);left:50%;transform:translateX(-50%);background:var(--ink);color:var(--card);font-size:.7rem;white-space:nowrap;padding:3px 7px;border-radius:5px;pointer-events:none;font-family:"Inter",sans-serif;font-weight:500;letter-spacing:.01em}
+/* ── PATTERN THEME PICKER ── */
+.theme-section{
+  margin-top:22px;
+  padding-top:18px;
+  border-top:1px solid var(--border);
+}
+.theme-header{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  margin-bottom:12px;
+}
+.theme-title{
+  font-size:.76rem;
+  font-weight:600;
+  color:var(--muted);
+  letter-spacing:.05em;
+  text-transform:uppercase;
+  display:flex;
+  align-items:center;
+  gap:6px;
+}
+.theme-current-desc{
+  font-size:.74rem;
+  color:var(--muted);
+  font-weight:500;
+}
+
+.theme-grid{
+  display:grid;
+  grid-template-columns:repeat(8, 1fr);
+  gap:8px;
+}
+@media(max-width:440px){
+  .theme-grid{grid-template-columns:repeat(4, 1fr);gap:10px}
+}
+
+.pat-swatch{
+  aspect-ratio:1;
+  border-radius:10px;
+  border:2px solid transparent;
+  cursor:pointer;
+  transition:transform .16s cubic-bezier(.34,1.56,.64,1),border-color .15s,box-shadow .15s;
+  position:relative;
+  outline:none;
+  background-size:cover;
+  background-position:center;
+  box-shadow:inset 0 0 0 1px rgba(0,0,0,.15);
+}
+.pat-swatch:hover{
+  transform:scale(1.18);
+  z-index:10;
+}
+.pat-swatch.active{
+  border-color:var(--accent);
+  box-shadow:0 0 0 2.5px var(--ring),inset 0 0 0 1px rgba(255,255,255,.4);
+  transform:scale(1.08);
+}
+.pat-swatch::after{
+  content:attr(data-name);
+  position:absolute;
+  bottom:calc(100% + 8px);
+  left:50%;
+  transform:translateX(-50%) scale(.85);
+  opacity:0;
+  background:#0F172A;
+  color:#F8FAFC;
+  font-size:.7rem;
+  font-family:"Plus Jakarta Sans",sans-serif;
+  font-weight:500;
+  white-space:nowrap;
+  padding:4px 8px;
+  border-radius:6px;
+  pointer-events:none;
+  transition:opacity .15s,transform .15s;
+  box-shadow:0 4px 12px rgba(0,0,0,.35);
+  z-index:20;
+}
+.pat-swatch:hover::after{
+  opacity:1;
+  transform:translateX(-50%) scale(1);
+}
 </style>
 </head>
-<body data-t="glacier">
-<div class="bg-mesh" aria-hidden="true"></div>
+<body data-t="blueprint">
 <div class="wrap">
   <div class="card">
-    <div class="brand">
-      <div class="brand-mark">
-        <svg viewBox="0 0 24 24" fill="none"><path d="M4 5h16M4 9h10M4 13h16M4 17h10" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+    <div class="header">
+      <div class="brand">
+        <div class="brand-mark">
+          <svg viewBox="0 0 24 24" fill="none"><path d="M4 5h16M4 9h10M4 13h16M4 17h10" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>
+        </div>
+        <div>
+          <div class="brand-name">Noty</div>
+          <div class="brand-sub">AI Notebooks</div>
+        </div>
       </div>
-      <div>
-        <div class="brand-name">Noty</div>
-        <div class="brand-sub">AI Notebooks</div>
-      </div>
+      <div class="theme-pill" id="theme-badge">📐 Blueprint</div>
     </div>
 
     <div class="headline">Welcome back</div>
-    <p class="sub">Sign in to your notebooks</p>
+    <p class="sub">Open your notebooks & continue with AI</p>
 
-    ${error ? `<div class="err" role="alert"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" flex-shrink="0" style="flex-shrink:0;margin-top:1px"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>${esc(error)}</div>` : ""}
+    ${error ? `<div class="err" role="alert"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="flex-shrink:0"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>${esc(error)}</div>` : ""}
     ${body}
 
-    <!-- theme picker -->
-    <div class="theme-bar">
-      <div class="theme-label">Theme</div>
-      <div class="theme-grid" id="swatches"></div>
+    <!-- 16 Pattern Themes Gallery -->
+    <div class="theme-section">
+      <div class="theme-header">
+        <div class="theme-title">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+          Pattern Texture
+        </div>
+        <div class="theme-current-desc" id="theme-sub">Architectural grid</div>
+      </div>
+      <div class="theme-grid" id="patterns-grid"></div>
     </div>
   </div>
 </div>
 
 <script>
 (function(){
-  var THEMES=[
-    {id:"dawn",     color:"#C0622F", name:"Dawn"},
-    {id:"glacier",  color:"#1E6BA8", name:"Glacier"},
-    {id:"sage",     color:"#2E7D45", name:"Sage"},
-    {id:"lavender", color:"#5B44B0", name:"Lavender"},
-    {id:"rose",     color:"#C0325A", name:"Rose"},
-    {id:"slate",    color:"#3A4F7A", name:"Slate"},
-    {id:"amber",    color:"#B87800", name:"Amber"},
-    {id:"teal",     color:"#0F7070", name:"Teal"},
-    {id:"sand",     color:"#8A6840", name:"Sand"},
-    {id:"midnight", color:"#6B8FFF", name:"Midnight"},
-    {id:"charcoal", color:"#A0AACC", name:"Charcoal"},
-    {id:"forest",   color:"#4DB870", name:"Forest"},
-    {id:"plum",     color:"#A87AE0", name:"Plum"},
-    {id:"crimson",  color:"#E05050", name:"Crimson"},
-    {id:"ocean",    color:"#3A8FD4", name:"Ocean"},
+  var PATTERNS = [
+    {id:"blueprint",   icon:"📐", name:"Blueprint",   desc:"Architectural drafting grid", bg:"#0A1B38", preview:"radial-gradient(#3B82F6 1px, #0A1B38 1px)"},
+    {id:"graph",       icon:"📊", name:"Graph Paper", desc:"Engineering millimeter grid", bg:"#F8FAF9", preview:"linear-gradient(#2563EB 0.75px, transparent 0.75px), linear-gradient(90deg, #2563EB 0.75px, #F8FAF9 0.75px)"},
+    {id:"dots",        icon:"📓", name:"Bullet Dot",  desc:"Minimalist dot matrix",      bg:"#F5F3EF", preview:"radial-gradient(#786C5E 1.2px, #F5F3EF 1.2px)"},
+    {id:"notebook",    icon:"📝", name:"Ruled Notes", desc:"Classic lined stationery",   bg:"#FAF9F5", preview:"linear-gradient(#3B82F6 1px, #FAF9F5 1px)"},
+    {id:"topo",        icon:"🗺️", name:"Topography",  desc:"Alpine elevation contours",  bg:"#0F241C", preview:"radial-gradient(#34D399 1.5px, #0F241C 1.5px)"},
+    {id:"waves",       icon:"🌊", name:"Seigaiha",    desc:"Zen Japanese wave arches",   bg:"#EDF4F5", preview:"radial-gradient(circle at 50% 0, #0E7490 2px, #EDF4F5 2px)"},
+    {id:"isometric",   icon:"🧊", name:"Isometric",   desc:"3D wireframe spatial mesh",  bg:"#121620", preview:"linear-gradient(60deg, #818CF8 1px, transparent 1px)"},
+    {id:"artdeco",     icon:"💎", name:"Art Deco",    desc:"Vintage luxury diamond lattice",bg:"#201714", preview:"linear-gradient(45deg, #F59E0B 1px, #201714 1px)"},
+    {id:"cosmos",      icon:"✨", name:"Constellation",desc:"Deep starry celestial map",  bg:"#0A0C16", preview:"radial-gradient(#93C5FD 1.5px, #0A0C16 1.5px)"},
+    {id:"honeycomb",   icon:"🐝", name:"Honeycomb",   desc:"Natural hexagonal lattice",  bg:"#1A140B", preview:"linear-gradient(30deg, #EAB308 1px, #1A140B 1px)"},
+    {id:"circuit",     icon:"⚡", name:"Circuit",     desc:"Cybernetic printed traces",  bg:"#071613", preview:"linear-gradient(90deg, #2DD4BF 1px, #071613 1px)"},
+    {id:"herringbone", icon:"👔", name:"Herringbone", desc:"Tailored chevron twill",    bg:"#EEF1F6", preview:"linear-gradient(45deg, #475569 1px, #EEF1F6 1px)"},
+    {id:"moroccan",    icon:"🕌", name:"Moroccan",    desc:"Arabesque geometric tiles",  bg:"#1A1126", preview:"radial-gradient(#C084FC 1.5px, #1A1126 1.5px)"},
+    {id:"terrazzo",    icon:"🏺", name:"Terrazzo",    desc:"Nordic speckled stone flecks",bg:"#F4EFEB", preview:"radial-gradient(#C27856 2px, #F4EFEB 2px)"},
+    {id:"aurora",      icon:"🌌", name:"Aurora",      desc:"Fluid sinusoidal wave flows",bg:"#0A1C24", preview:"linear-gradient(135deg, #0A1C24, #083344)"},
+    {id:"carbon",      icon:"🏁", name:"Carbon",      desc:"High-tech carbon weave",     bg:"#121418", preview:"linear-gradient(45deg, #1B1E24 25%, #121418 25%)"},
   ];
 
-  var saved = localStorage.getItem("noty:login-theme") || "glacier";
-  document.body.setAttribute("data-t", saved);
+  var saved = localStorage.getItem("noty:login-pattern-theme") || "blueprint";
+  if (!PATTERNS.some(function(p){ return p.id === saved; })) saved = "blueprint";
 
-  var grid = document.getElementById("swatches");
-  THEMES.forEach(function(th){
-    var s = document.createElement("button");
-    s.className = "swatch" + (th.id === saved ? " active" : "");
-    s.style.background = th.color;
-    s.title = th.name;
-    s.setAttribute("aria-label", th.name + " theme");
-    s.addEventListener("click", function(){
-      document.body.setAttribute("data-t", th.id);
-      localStorage.setItem("noty:login-theme", th.id);
-      document.querySelectorAll(".swatch").forEach(function(el){ el.classList.remove("active"); });
-      s.classList.add("active");
+  var bodyEl = document.body;
+  var badgeEl = document.getElementById("theme-badge");
+  var subEl = document.getElementById("theme-sub");
+
+  function apply(th){
+    bodyEl.setAttribute("data-t", th.id);
+    localStorage.setItem("noty:login-pattern-theme", th.id);
+    if(badgeEl) badgeEl.textContent = th.icon + " " + th.name;
+    if(subEl) subEl.textContent = th.desc;
+
+    document.querySelectorAll(".pat-swatch").forEach(function(el){
+      if(el.getAttribute("data-id") === th.id) el.classList.add("active");
+      else el.classList.remove("active");
     });
-    grid.appendChild(s);
+  }
+
+  var grid = document.getElementById("patterns-grid");
+  PATTERNS.forEach(function(th){
+    var btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "pat-swatch" + (th.id === saved ? " active" : "");
+    btn.setAttribute("data-id", th.id);
+    btn.setAttribute("data-name", th.icon + " " + th.name);
+    btn.setAttribute("aria-label", th.name + " pattern: " + th.desc);
+    btn.style.backgroundColor = th.bg;
+    btn.style.backgroundImage = th.preview;
+    btn.style.backgroundSize = "14px 14px";
+    btn.addEventListener("click", function(){ apply(th); });
+    grid.appendChild(btn);
   });
+
+  var initial = PATTERNS.find(function(p){ return p.id === saved; }) || PATTERNS[0];
+  apply(initial);
 })();
 </script>
 </body></html>`;
